@@ -3,8 +3,7 @@ DATA_DIR="Data"
 OUTPUT_DIR="output"
 SOURCE_DIR="xml-data-source"
 TOOLS_DIR="tools"
-HEAD_BRANCH=`head -n 1 '.git/HEAD' | cut -d " " -f 2`
-HEAD_COMMIT=`head -n 1 ".git/$HEAD_BRANCH"`
+HEAD_COMMIT=`git rev-parse HEAD`
 
 LATEST_BAR_LINE=`ls -lh "$OUTPUT_DIR" | grep "Data_latest.bar"`
 if echo "$LATEST_BAR_LINE" | grep -E "^l"; then
