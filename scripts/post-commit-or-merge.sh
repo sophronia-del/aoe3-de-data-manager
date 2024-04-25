@@ -53,4 +53,5 @@ mv "Data_$HEAD_COMMIT.bar" "$OUTPUT_DIR/Data_$HEAD_COMMIT.bar"
 
 rm -f "$OUTPUT_DIR/Data_latest.bar"
 
-cmd.exe /C mklink "$OUTPUT_DIR\\Data_latest.bar" "Data_$HEAD_COMMIT.bar"
+cd "$OUTPUT_DIR"
+cmd.exe /C "mklink "Data_latest.bar" "Data_$HEAD_COMMIT.bar""
