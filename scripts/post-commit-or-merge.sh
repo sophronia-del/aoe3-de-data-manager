@@ -2,6 +2,7 @@
 DATA_DIR="Data"
 OUTPUT_DIR="output"
 SOURCE_DIR="xml-data-source"
+SOURCE_DIR_LENGTH=$(expr length "$SOURCE_DIR/")
 TOOLS_DIR="tools"
 HEAD_COMMIT=`git rev-parse HEAD`
 
@@ -27,7 +28,7 @@ if [ -n "$ORIGIN_HASH" ]; then
     FILE_COUNT=0
     TEMP_FILE="tmp.tmp"
     rm -f "$TEMP_FILE"
-    git diff --name-status HEAD "$ORIGIN_HASH" | grep -v '^D' > "$TEMP_FILE"
+    git diff --name-status HEAD "$ORIGIN_HASH" | grep -v '^D' | grep "$SOURCE_DIR/" | sort | uniq > "$TEMP_FILE"
     cat "$TEMP_FILE"
 
     while read -a columns; do
@@ -35,11 +36,11 @@ if [ -n "$ORIGIN_HASH" ]; then
         for column in "${columns[@]}"; do
             MODIFIED_FILE="$column"
         done
-        FILE_FILTER="$FILE_FILTER$MODIFIED_FILE,"
+        RELATIVE_PATH=${MODIFIED_FILE:$SOURCE_DIR_LENGTH}
+
+        FILE_FILTER="$FILE_FILTER filter=$RELATIVE_PATH"
         ((FILE_COUNT++))
     done < "$TEMP_FILE"
-
-    echo "$FILE_COUNT changed files detected"
 
     rm -f "$TEMP_FILE"
 
@@ -48,7 +49,8 @@ if [ -n "$ORIGIN_HASH" ]; then
     fi;
 fi
 
-$TOOLS_DIR/aoe3-auto-packager.exe source="$SOURCE_DIR" data="$DATA_DIR" suffix="$HEAD_COMMIT" filter="$FILE_FILTER"
+echo "$TOOLS_DIR/aoe3-auto-packager.exe source="$SOURCE_DIR" data="$DATA_DIR" suffix="$HEAD_COMMIT" "$FILE_FILTER""
+$TOOLS_DIR/aoe3-auto-packager.exe source="$SOURCE_DIR" data="$DATA_DIR" suffix="$HEAD_COMMIT" "$FILE_FILTER"
 mv "Data_$HEAD_COMMIT.bar" "$OUTPUT_DIR/Data_$HEAD_COMMIT.bar"
 
 rm -f "$OUTPUT_DIR/Data_latest.bar"
